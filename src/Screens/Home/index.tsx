@@ -2,6 +2,7 @@ import React, {useState} from 'react';
 import {
   FlatList,
   Image,
+  Modal,
   ScrollView,
   Text,
   TextInput,
@@ -9,27 +10,41 @@ import {
   View,
 } from 'react-native';
 import {useDispatch, useSelector} from 'react-redux';
-import TotalCalc from '../../Components/Total';
-import {ItemList} from '../../Interfaces/List';
-import styles from './styles';
-import {selectProductsList} from '../../Store/ProductsList/ProductsList.selectors';
+import {navigationInterface} from '../../Interfaces/globalInterfaces';
+import {List} from '../../Interfaces/listIntefaces';
 import {setProductsList} from '../../Store/ProductsList/ProductsList.actions';
+import {selectProductsList} from '../../Store/ProductsList/ProductsList.selectors';
+import styles from './styles';
 
-const Home = () => {
+const HomeScreen = ({navigation}: navigationInterface) => {
   const ProductsFromRedux = useSelector(selectProductsList);
   const dispatch = useDispatch();
-  const [Product, setProduct] = useState<ItemList[]>(ProductsFromRedux);
-  console.log('Home:', {ProductsFromRedux});
+  const [list, setList] = useState<List[]>(ProductsFromRedux);
+  const [rename, setRename] = useState('');
 
-  useState(() => {
-    console.log({ProductsFromRedux});
-  }, [ProductsFromRedux]);
+  const AddList = () => {
+    let temp = list;
+    temp = [
+      ...temp,
+      {
+        id: `list-${temp.length}`,
+        type: 'list',
+        name: `lista ${temp.length + 1}`,
+        itens: [],
+      },
+    ];
+    setList(temp);
+    dispatch(setProductsList(temp));
+  };
 
-  const alteration = (id: number, value: any, type: string) => {
-    if (type === 'value') {
-      value = value.replace(',', '.');
-    }
-    let aux = Product;
+  const excluir = (id: string) => {
+    const aux = list.filter(item => item.id !== id);
+    setList(aux);
+    dispatch(setProductsList(aux));
+  };
+
+  const alteration = (id: string, value: any, type: string) => {
+    let aux = list;
     aux = aux.map(item => {
       if (item.id === id) {
         return {
@@ -40,98 +55,53 @@ const Home = () => {
         return {...item};
       }
     });
-    setProduct([...aux]);
+    setList([...aux]);
     dispatch(setProductsList(aux));
   };
 
-  const AddProduct = () => {
-    let temp = Product;
-    temp = [
-      ...temp,
-      {
-        id: temp.length === 0 ? 0 : temp[temp.length - 1].id + 1,
-        check: false,
-        qtd: 0,
-        description: '',
-        value: '',
-      },
-    ];
-    setProduct(temp);
-    dispatch(setProductsList(temp));
-  };
-
-  const excluir = (id: number) => {
-    const aux = Product.filter(item => item.id !== id);
-    setProduct(aux);
-    dispatch(setProductsList(aux));
-  };
-
-  const renderItem = ({item}: {item: ItemList}) => {
+  const renderItem = ({item}: {item: List}) => {
     return (
-      <View style={styles.itens}>
+      <View>
         <TouchableOpacity
-          style={styles.exclude}
-          onPress={() => {
-            excluir(item.id);
-          }}>
-          <Text style={styles.excludeText}>x</Text>
-        </TouchableOpacity>
-        <View style={styles.line2}>
-          <TextInput
-            style={styles.descriptionValue}
-            placeholder="produto"
-            value={item.description}
-            onChangeText={value => alteration(item.id, value, 'description')}
-          />
-        </View>
-        <View style={styles.line1}>
+          onPress={() => navigation.navigate('List', {list: item.id})}
+          style={styles.itens}>
+          <View style={styles.line2}>
+            <Text style={styles.descriptionValue}>{item.name}</Text>
+          </View>
           <TouchableOpacity
-            onPress={() => alteration(item.id, !item.check, 'check')}
-            style={[styles.check]}>
-            {item.check && (
-              <Image source={require('../../assets/icons/Ok1.png')} />
-            )}
+            // style={styles.exclude}
+            onPress={() => {
+              setRename(item.id);
+            }}>
+            <Image source={require('../../assets/icons/Edit2x.png')} />
           </TouchableOpacity>
-          <View style={styles.itensQtd}>
-            <TouchableOpacity
-              onPress={() =>
-                alteration(item.id, item.qtd === 0 ? 0 : item.qtd - 1, 'qtd')
-              }
-              style={styles.subtract}>
-              <View style={styles.subtractText} />
-            </TouchableOpacity>
-            <Text style={styles.Number}>{item.qtd}</Text>
-            <TouchableOpacity
-              onPress={() => alteration(item.id, item.qtd + 1, 'qtd')}
-              style={styles.ADD}>
-              <View style={styles.ADDText} />
-              <View style={styles.ADDTextV} />
-            </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.exclude}
+            onPress={() => {
+              excluir(item.id);
+            }}>
+            <Text style={styles.excludeText}>x</Text>
+          </TouchableOpacity>
+        </TouchableOpacity>
+        <Modal transparent={true} visible={rename === item.id}>
+          <View style={styles.modal}>
+            <View style={styles.modalComp}>
+              <TextInput
+                style={styles.modalTextInput}
+                placeholder="Nome da lista"
+                value={item.name}
+                onChangeText={value => alteration(item.id, value, 'name')}
+              />
+              <TouchableOpacity
+                style={styles.modalTouch}
+                onPress={() => {
+                  setRename('');
+                }}>
+                <Text style={styles.modalTouchText}>Salvar</Text>
+              </TouchableOpacity>
+            </View>
           </View>
-          <Text style={styles.valorUnd}>Valor un:</Text>
-          <View style={styles.priceioncomp}>
-            <Text style={styles.priceionValueRS}>R$</Text>
-            <TextInput
-              style={styles.priceionValue}
-              keyboardType="numeric"
-              placeholder="0,00"
-              placeholderTextColor={'black'}
-              value={item.value.replace('.', ',')}
-              onChangeText={value => alteration(item.id, value, 'value')}
-            />
-          </View>
-        </View>
-        <View style={styles.line3}>
-          <Text style={styles.valorUnd}>Valor total:</Text>
-          <Text style={styles.priceioncomp}>
-            {(item.qtd * Number(item.value)).toLocaleString('pt-BR', {
-              style: 'currency',
-              currency: 'BRL',
-              minimumFractionDigits: 2,
-              maximumFractionDigits: 2,
-            })}
-          </Text>
-        </View>
+        </Modal>
       </View>
     );
   };
@@ -141,26 +111,23 @@ const Home = () => {
       <ScrollView contentInsetAdjustmentBehavior="automatic">
         <View>
           <View style={styles.header}>
-            <Text style={styles.title}>Lista de compras</Text>
+            <Text style={styles.title}>Listas de compras</Text>
           </View>
           <View style={styles.body}>
             <FlatList
               style={{width: '100%'}}
-              data={Product}
+              data={list}
               renderItem={renderItem}
               keyExtractor={item => item.id.toString()}
             />
-            <TouchableOpacity
-              onPress={() => AddProduct()}
-              style={styles.AddTouch}>
+            <TouchableOpacity onPress={() => AddList()} style={styles.AddTouch}>
               <Text style={styles.Add}>+</Text>
             </TouchableOpacity>
           </View>
         </View>
       </ScrollView>
-      <TotalCalc price={Product} />
     </View>
   );
 };
 
-export default Home;
+export default HomeScreen;
