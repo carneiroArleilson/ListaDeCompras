@@ -10,7 +10,7 @@ import {LogBox} from 'react-native';
 import {Provider} from 'react-redux';
 import {PersistGate} from 'redux-persist/integration/react';
 import {persistedStore, store} from './Store/Store';
-import Home from './Screens/Home';
+import AppRoutes from './Routes/App.routes';
 LogBox.ignoreLogs([
   "[react-native-gesture-handler] Seems like you're using an old API with gesture components, check out new Gestures system!",
 ]);
@@ -22,7 +22,7 @@ const App = () => {
     <Provider store={store}>
       <PersistGate persistor={persistedStore}>
         <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
-        <Home />
+        <AppRoutes />
       </PersistGate>
     </Provider>
   );
