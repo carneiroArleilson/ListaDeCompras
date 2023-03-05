@@ -1,6 +1,8 @@
 import React, {useState} from 'react';
 import {
   FlatList,
+  Image,
+  Modal,
   ScrollView,
   Text,
   TextInput,
@@ -18,6 +20,7 @@ const HomeScreen = ({navigation}: navigationInterface) => {
   const ProductsFromRedux = useSelector(selectProductsList);
   const dispatch = useDispatch();
   const [list, setList] = useState<List[]>(ProductsFromRedux);
+  const [rename, setRename] = useState('');
 
   const AddList = () => {
     let temp = list;
@@ -26,7 +29,7 @@ const HomeScreen = ({navigation}: navigationInterface) => {
       {
         id: `list-${temp.length}`,
         type: 'list',
-        name: '',
+        name: `lista ${temp.length + 1}`,
         itens: [],
       },
     ];
@@ -41,9 +44,6 @@ const HomeScreen = ({navigation}: navigationInterface) => {
   };
 
   const alteration = (id: string, value: any, type: string) => {
-    if (type === 'value') {
-      value = value.replace(',', '.');
-    }
     let aux = list;
     aux = aux.map(item => {
       if (item.id === id) {
@@ -61,25 +61,48 @@ const HomeScreen = ({navigation}: navigationInterface) => {
 
   const renderItem = ({item}: {item: List}) => {
     return (
-      <TouchableOpacity
-        onPress={() => navigation.navigate('List', {list: item.id})}
-        style={styles.itens}>
-        <View style={styles.line2}>
-          <TextInput
-            style={styles.descriptionValue}
-            placeholder="Nome da lista"
-            value={item.name}
-            onChangeText={value => alteration(item.id, value, 'name')}
-          />
-        </View>
+      <View>
         <TouchableOpacity
-          style={styles.exclude}
-          onPress={() => {
-            excluir(item.id);
-          }}>
-          <Text style={styles.excludeText}>x</Text>
+          onPress={() => navigation.navigate('List', {list: item.id})}
+          style={styles.itens}>
+          <View style={styles.line2}>
+            <Text style={styles.descriptionValue}>{item.name}</Text>
+          </View>
+          <TouchableOpacity
+            // style={styles.exclude}
+            onPress={() => {
+              setRename(item.id);
+            }}>
+            <Image source={require('../../assets/icons/Edit2x.png')} />
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.exclude}
+            onPress={() => {
+              excluir(item.id);
+            }}>
+            <Text style={styles.excludeText}>x</Text>
+          </TouchableOpacity>
         </TouchableOpacity>
-      </TouchableOpacity>
+        <Modal transparent={true} visible={rename === item.id}>
+          <View style={styles.modal}>
+            <View style={styles.modalComp}>
+              <TextInput
+                style={styles.modalTextInput}
+                placeholder="Nome da lista"
+                value={item.name}
+                onChangeText={value => alteration(item.id, value, 'name')}
+              />
+              <TouchableOpacity
+                style={styles.modalTouch}
+                onPress={() => {
+                  setRename('');
+                }}>
+                <Text style={styles.modalTouchText}>Salvar</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </Modal>
+      </View>
     );
   };
 
