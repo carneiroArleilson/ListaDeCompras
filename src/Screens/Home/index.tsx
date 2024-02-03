@@ -120,7 +120,12 @@ const HomeScreen = ({navigation}: navigationInterface) => {
           setModalRename(!modalRename);
           setRename('');
         }}>
-        <View style={styles.modal}>
+        <TouchableOpacity
+          onPress={() => {
+            setModalRename(!modalRename);
+            setRename('');
+          }}
+          style={styles.modal}>
           <View style={styles.modalComp}>
             <TextInput
               style={styles.modalTextInput}
@@ -132,7 +137,7 @@ const HomeScreen = ({navigation}: navigationInterface) => {
               <Text style={styles.modalTouchText}>Salvar</Text>
             </TouchableOpacity>
           </View>
-        </View>
+        </TouchableOpacity>
       </Modal>
     </View>
   );
