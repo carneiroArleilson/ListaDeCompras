@@ -11,7 +11,7 @@ import {
 } from 'react-native';
 import {useDispatch, useSelector} from 'react-redux';
 import {navigationInterface} from '../../Interfaces/globalInterfaces';
-import {List} from '../../Interfaces/listIntefaces';
+import {ItemList, List} from '../../Interfaces/listIntefaces';
 import {setProductsList} from '../../Store/ProductsList/ProductsList.actions';
 import {selectProductsList} from '../../Store/ProductsList/ProductsList.selectors';
 import styles from './styles';
@@ -23,16 +23,22 @@ const HomeScreen = ({navigation}: navigationInterface) => {
   const [rename, setRename] = useState('');
   const [modalRename, setModalRename] = useState(false);
   const [idRename, setIdRename] = useState('');
+  const [modalEasyList, setModalEasyList] = useState(false);
+  const [easyList, setEasyList] = useState('');
+  const [nameEasyList, setNameEasyList] = useState('');
 
-  const AddList = () => {
+  const AddList = (
+    name: string = `lista ${list.length + 1}`,
+    itens: ItemList[] = [],
+  ) => {
     let temp = list;
     temp = [
       ...temp,
       {
         id: `list-${temp.length}`,
         type: 'list',
-        name: `lista ${temp.length + 1}`,
-        itens: [],
+        name,
+        itens,
       },
     ];
     setList(temp);
@@ -69,6 +75,24 @@ const HomeScreen = ({navigation}: navigationInterface) => {
     setIdRename(id);
   };
 
+  const newListEasy = (name: string, listItens: string) => {
+    let newList = listItens.split(/\n/);
+    newList.splice(newList.indexOf(''), 1);
+    let itens: ItemList[] = [];
+    newList.forEach((item, index) =>
+      itens.push({
+        id: `item-list-${list.length + 1}.${index + 1}`,
+        type: 'item',
+        check: true,
+        qtd: item.split('-')[0],
+        description: item.split('-')[1],
+        value: 0,
+      }),
+    );
+
+    AddList(name.length === 0 ? `lista ${list.length + 1}` : name, itens);
+  };
+
   const renderItem = ({item}: {item: List}) => {
     return (
       <View>
@@ -100,6 +124,11 @@ const HomeScreen = ({navigation}: navigationInterface) => {
           <View style={styles.header}>
             <Text style={styles.title}>Listas de compras</Text>
           </View>
+          <TouchableOpacity onPress={() => setModalEasyList(!modalEasyList)}>
+            <Text style={{textAlign: 'center', marginTop: 20}}>
+              Lista fácil
+            </Text>
+          </TouchableOpacity>
           <View style={styles.body}>
             <FlatList
               style={{width: '100%'}}
@@ -130,10 +159,49 @@ const HomeScreen = ({navigation}: navigationInterface) => {
             <TextInput
               style={styles.modalTextInput}
               placeholder="Nome da lista"
+              placeholderTextColor={'black'}
               value={rename}
               onChangeText={setRename}
             />
             <TouchableOpacity style={styles.modalTouch} onPress={alteration}>
+              <Text style={styles.modalTouchText}>Salvar</Text>
+            </TouchableOpacity>
+          </View>
+        </TouchableOpacity>
+      </Modal>
+      <Modal
+        transparent={true}
+        visible={modalEasyList}
+        onRequestClose={() => {
+          setModalEasyList(!modalEasyList);
+        }}>
+        <TouchableOpacity
+          onPress={() => {
+            setModalEasyList(!modalEasyList);
+          }}
+          style={styles.modal}>
+          <View style={styles.modalComp}>
+            <TextInput
+              style={styles.modalTextInput}
+              placeholder="Nome da lista"
+              placeholderTextColor={'black'}
+              value={nameEasyList}
+              onChangeText={setNameEasyList}
+            />
+            <TextInput
+              style={styles.modalTextInput}
+              placeholder="lista"
+              placeholderTextColor={'black'}
+              value={easyList}
+              onChangeText={setEasyList}
+              multiline
+            />
+            <TouchableOpacity
+              style={styles.modalTouch}
+              onPress={() => {
+                newListEasy(nameEasyList, easyList);
+                setModalEasyList(!modalEasyList);
+              }}>
               <Text style={styles.modalTouchText}>Salvar</Text>
             </TouchableOpacity>
           </View>

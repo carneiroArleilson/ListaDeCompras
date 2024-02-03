@@ -101,6 +101,7 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     textAlign: 'center',
     color: 'black',
+    marginBottom: getResponsiveValue(30),
   },
   modalTouch: {
     backgroundColor: '#43a7f5',
