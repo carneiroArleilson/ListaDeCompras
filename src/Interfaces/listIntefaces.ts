@@ -4,7 +4,7 @@ export interface ItemList {
   check: boolean;
   description: string;
   qtd: number;
-  value: string;
+  value: number;
 }
 
 export interface List {
