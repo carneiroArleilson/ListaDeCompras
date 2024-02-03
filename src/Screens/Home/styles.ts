@@ -55,6 +55,16 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     color: 'black',
   },
+  buttonListEasy:{
+    backgroundColor: '#43a7f5',
+    width: '70%',
+    alignSelf: 'center',
+    borderRadius: 20,
+    justifyContent: 'center',
+    marginTop: 20,
+    height: 30,
+  },
+  textListEasy: {textAlign: 'center', color: 'black'},
   AddTouch: {
     backgroundColor: '#43a7f5',
     alignContent: 'center',

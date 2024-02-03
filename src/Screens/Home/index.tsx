@@ -70,8 +70,9 @@ const HomeScreen = ({navigation}: navigationInterface) => {
     setModalRename(false);
   };
 
-  const getRename = (id: string) => {
+  const getRename = (id: string, name: string) => {
     setModalRename(true);
+    setRename(name);
     setIdRename(id);
   };
 
@@ -90,6 +91,7 @@ const HomeScreen = ({navigation}: navigationInterface) => {
       }),
     );
 
+    setEasyList('');
     AddList(name.length === 0 ? `lista ${list.length + 1}` : name, itens);
   };
 
@@ -102,7 +104,7 @@ const HomeScreen = ({navigation}: navigationInterface) => {
           <View style={styles.line2}>
             <Text style={styles.descriptionValue}>{item.name}</Text>
           </View>
-          <TouchableOpacity onPress={() => getRename(item.id)}>
+          <TouchableOpacity onPress={() => getRename(item.id, item.name)}>
             <Image source={require('../../assets/icons/Edit2x.png')} />
           </TouchableOpacity>
           <TouchableOpacity
@@ -124,10 +126,10 @@ const HomeScreen = ({navigation}: navigationInterface) => {
           <View style={styles.header}>
             <Text style={styles.title}>Listas de compras</Text>
           </View>
-          <TouchableOpacity onPress={() => setModalEasyList(!modalEasyList)}>
-            <Text style={{textAlign: 'center', marginTop: 20}}>
-              Lista fácil
-            </Text>
+          <TouchableOpacity
+            onPress={() => setModalEasyList(!modalEasyList)}
+            style={styles.buttonListEasy}>
+            <Text style={styles.textListEasy}>Lista fácil</Text>
           </TouchableOpacity>
           <View style={styles.body}>
             <FlatList
@@ -158,8 +160,8 @@ const HomeScreen = ({navigation}: navigationInterface) => {
           <View style={styles.modalComp}>
             <TextInput
               style={styles.modalTextInput}
+              placeholderTextColor={'rgba(0,0,0,0.25)'}
               placeholder="Nome da lista"
-              placeholderTextColor={'black'}
               value={rename}
               onChangeText={setRename}
             />
@@ -183,15 +185,15 @@ const HomeScreen = ({navigation}: navigationInterface) => {
           <View style={styles.modalComp}>
             <TextInput
               style={styles.modalTextInput}
+              placeholderTextColor={'rgba(0,0,0,0.25)'}
               placeholder="Nome da lista"
-              placeholderTextColor={'black'}
               value={nameEasyList}
               onChangeText={setNameEasyList}
             />
             <TextInput
               style={styles.modalTextInput}
-              placeholder="lista"
-              placeholderTextColor={'black'}
+              placeholder={`ex.: qtd-descrição${'\n'}1-leite${'\n'}2-mingau${'\n'}15-aveia`}
+              placeholderTextColor={'rgba(0,0,0,0.25)'}
               value={easyList}
               onChangeText={setEasyList}
               multiline
