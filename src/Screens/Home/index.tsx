@@ -78,18 +78,23 @@ const HomeScreen = ({navigation}: navigationInterface) => {
 
   const newListEasy = (name: string, listItens: string) => {
     let newList = listItens.split(/\n/);
-    newList.splice(newList.indexOf(''), 1);
+    let indexRemove = newList.indexOf('');
+    if (indexRemove >= 0) {
+      newList.splice(indexRemove, 1);
+    }
     let itens: ItemList[] = [];
-    newList.forEach((item, index) =>
-      itens.push({
-        id: `item-list-${list.length + 1}.${index + 1}`,
-        type: 'item',
-        check: true,
-        qtd: item.split('-')[0],
-        description: item.split('-')[1],
-        value: 0,
-      }),
-    );
+    newList.forEach((item, index) => {
+      if (Number(item.split('-')[0])) {
+        itens.push({
+          id: `item-list-${list.length + 1}.${index + 1}`,
+          type: 'item',
+          check: true,
+          qtd: item.split('-')[0],
+          description: item.split('-')[1],
+          value: 0,
+        });
+      }
+    });
 
     setEasyList('');
     AddList(name.length === 0 ? `lista ${list.length + 1}` : name, itens);
