@@ -9,6 +9,7 @@
     "start": "react-native start",
     "test": "jest",
     "limpar": "rm -rf yarn.look yarn-error.log node_modules",
+    "clean": "cd android && ./gradlew clean",
     "build-release-windows": " cd android && ./gradlew assembleRelease",
     "build-bundle-windows": " cd android && ./gradlew bundleRelease"
   },

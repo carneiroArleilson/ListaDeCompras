@@ -21,6 +21,8 @@ const HomeScreen = ({navigation}: navigationInterface) => {
   const dispatch = useDispatch();
   const [list, setList] = useState<List[]>(ProductsFromRedux);
   const [rename, setRename] = useState('');
+  const [modalRename, setModalRename] = useState(false);
+  const [idRename, setIdRename] = useState('');
 
   const AddList = () => {
     let temp = list;
@@ -43,13 +45,15 @@ const HomeScreen = ({navigation}: navigationInterface) => {
     dispatch(setProductsList(aux));
   };
 
-  const alteration = (id: string, value: any, type: string) => {
+  const alteration = () => {
+    const id = idRename;
+    const value = rename;
     let aux = list;
     aux = aux.map(item => {
       if (item.id === id) {
         return {
           ...item,
-          [type]: value,
+          name: value,
         };
       } else {
         return {...item};
@@ -57,6 +61,12 @@ const HomeScreen = ({navigation}: navigationInterface) => {
     });
     setList([...aux]);
     dispatch(setProductsList(aux));
+    setModalRename(false);
+  };
+
+  const getRename = (id: string) => {
+    setModalRename(true);
+    setIdRename(id);
   };
 
   const renderItem = ({item}: {item: List}) => {
@@ -68,11 +78,7 @@ const HomeScreen = ({navigation}: navigationInterface) => {
           <View style={styles.line2}>
             <Text style={styles.descriptionValue}>{item.name}</Text>
           </View>
-          <TouchableOpacity
-            // style={styles.exclude}
-            onPress={() => {
-              setRename(item.id);
-            }}>
+          <TouchableOpacity onPress={() => getRename(item.id)}>
             <Image source={require('../../assets/icons/Edit2x.png')} />
           </TouchableOpacity>
           <TouchableOpacity
@@ -83,25 +89,6 @@ const HomeScreen = ({navigation}: navigationInterface) => {
             <Text style={styles.excludeText}>x</Text>
           </TouchableOpacity>
         </TouchableOpacity>
-        <Modal transparent={true} visible={rename === item.id}>
-          <View style={styles.modal}>
-            <View style={styles.modalComp}>
-              <TextInput
-                style={styles.modalTextInput}
-                placeholder="Nome da lista"
-                value={item.name}
-                onChangeText={value => alteration(item.id, value, 'name')}
-              />
-              <TouchableOpacity
-                style={styles.modalTouch}
-                onPress={() => {
-                  setRename('');
-                }}>
-                <Text style={styles.modalTouchText}>Salvar</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-        </Modal>
       </View>
     );
   };
@@ -126,6 +113,27 @@ const HomeScreen = ({navigation}: navigationInterface) => {
           </View>
         </View>
       </ScrollView>
+      <Modal
+        transparent={true}
+        visible={modalRename}
+        onRequestClose={() => {
+          setModalRename(!modalRename);
+          setRename('');
+        }}>
+        <View style={styles.modal}>
+          <View style={styles.modalComp}>
+            <TextInput
+              style={styles.modalTextInput}
+              placeholder="Nome da lista"
+              value={rename}
+              onChangeText={setRename}
+            />
+            <TouchableOpacity style={styles.modalTouch} onPress={alteration}>
+              <Text style={styles.modalTouchText}>Salvar</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 };
